@@ -59,7 +59,7 @@ func TestMutexClose(t *testing.T) {
 }
 
 func TestMutexCloseUnblock(t *testing.T) {
-	c := make(chan bool)
+	c := make(chan bool, 1)
 	var mu FDMutex
 	mu.RWLock(true)
 	for i := 0; i < 4; i++ {
