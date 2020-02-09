@@ -391,6 +391,8 @@ func (t *LineTable) go12PCToFile(pc uint64) (file string) {
 	if fno <= 0 {
 		return ""
 	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	return t.string(t.binary.Uint32(t.filetab[4*fno:]))
 }
 
