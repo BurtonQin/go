@@ -1326,7 +1326,7 @@ func TestChdirAndGetwd(t *testing.T) {
 func TestProgWideChdir(t *testing.T) {
 	const N = 10
 	c := make(chan bool)
-	cpwd := make(chan string)
+	cpwd := make(chan string, 1)
 	for i := 0; i < N; i++ {
 		go func(i int) {
 			// Lock half the goroutines in their own operating system
@@ -1350,10 +1350,12 @@ func TestProgWideChdir(t *testing.T) {
 	}
 	oldwd, err := Getwd()
 	if err != nil {
+		close(c)
 		t.Fatalf("Getwd: %v", err)
 	}
 	d, err := ioutil.TempDir("", "test")
 	if err != nil {
+		close(c)
 		t.Fatalf("TempDir: %v", err)
 	}
 	defer func() {
@@ -1363,12 +1365,14 @@ func TestProgWideChdir(t *testing.T) {
 		RemoveAll(d)
 	}()
 	if err := Chdir(d); err != nil {
+		close(c)
 		t.Fatalf("Chdir: %v", err)
 	}
 	// OS X sets TMPDIR to a symbolic link.
 	// So we resolve our working directory again before the test.
 	d, err = Getwd()
 	if err != nil {
+		close(c)
 		t.Fatalf("Getwd: %v", err)
 	}
 	close(c)
