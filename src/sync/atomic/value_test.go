@@ -95,6 +95,7 @@ func TestValueConcurrent(t *testing.T) {
 		for i := 0; i < p; i++ {
 			go func() {
 				r := rand.New(rand.NewSource(rand.Int63()))
+				Expected := true
 			loop:
 				for j := 0; j < N; j++ {
 					x := test[r.Intn(len(test))]
@@ -106,9 +107,14 @@ func TestValueConcurrent(t *testing.T) {
 						}
 					}
 					t.Logf("loaded unexpected value %+v, want %+v", x, test)
+					Expected = false
+					break
+				}
+				if Expected {
+					done <- true
+				} else {
 					done <- false
 				}
-				done <- true
 			}()
 		}
 		for i := 0; i < p; i++ {
